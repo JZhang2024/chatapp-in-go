@@ -9,18 +9,21 @@ import (
 
 func handleConnection(conn net.Conn) {
     defer conn.Close()
+    clientAddr := conn.RemoteAddr().String() // Get the client's address
+    fmt.Printf("Client connected: %s\n", clientAddr)
+
     reader := bufio.NewReader(conn)
     for {
         message, err := reader.ReadString('\n')
         if err != nil {
-            fmt.Fprintf(os.Stderr, "Error reading from connection: %v\n", err)
+            fmt.Fprintf(os.Stderr, "Error reading from connection (%s): %v\n", clientAddr, err)
             break // Exit the loop if an error occurs
         }
-        fmt.Printf("Message Received: %s", message)
+        fmt.Printf("Message Received from %s: %s", clientAddr, message)
         
         _, err = conn.Write([]byte(message)) // Echo back the message to the client
         if err != nil {
-            fmt.Fprintf(os.Stderr, "Error writing to connection: %v\n", err)
+            fmt.Fprintf(os.Stderr, "Error writing to connection (%s): %v\n", clientAddr, err)
             break // Exit the loop if an error occurs
         }
     }
